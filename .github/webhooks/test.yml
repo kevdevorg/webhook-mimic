@@ -1,0 +1,100 @@
+name: Trigger Webhook on Push
+
+on:
+  push:
+    branches:
+      - main  # Change this to the branch you want to monitor
+
+jobs:
+  trigger-webhook:
+    runs-on: ubuntu-latest
+    env: 
+      WEBHOOK_URL: https://example.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create webhook payload
+        run: |
+          echo '{
+            "ref": "${{ github.ref }}",
+            "before": "${{ github.event.before }}",
+            "after": "${{ github.event.after }}",
+            "repository": {
+              "id": "${{ github.event.repository.id }}",
+              "name": "${{ github.event.repository.name }}",
+              "full_name": "${{ github.event.repository.full_name }}",
+              "owner": {
+                "name": "${{ github.event.repository.owner.name }}",
+                "email": "${{ github.event.repository.owner.email }}"
+              },
+              "private": "${{ github.event.repository.private }}",
+              "html_url": "${{ github.event.repository.html_url }}",
+              "description": "${{ github.event.repository.description }}",
+              "fork": "${{ github.event.repository.fork }}",
+              "url": "${{ github.event.repository.url }}",
+              "created_at": "${{ github.event.repository.created_at }}",
+              "updated_at": "${{ github.event.repository.updated_at }}",
+              "pushed_at": "${{ github.event.repository.pushed_at }}",
+              "homepage": "${{ github.event.repository.homepage }}",
+              "size": "${{ github.event.repository.size }}",
+              "stargazers_count": "${{ github.event.repository.stargazers_count }}",
+              "watchers_count": "${{ github.event.repository.watchers_count }}",
+              "language": "${{ github.event.repository.language }}",
+              "has_issues": "${{ github.event.repository.has_issues }}",
+              "has_projects": "${{ github.event.repository.has_projects }}",
+              "has_downloads": "${{ github.event.repository.has_downloads }}",
+              "has_wiki": "${{ github.event.repository.has_wiki }}",
+              "has_pages": "${{ github.event.repository.has_pages }}",
+              "forks_count": "${{ github.event.repository.forks_count }}",
+              "mirror_url": "${{ github.event.repository.mirror_url }}",
+              "archived": "${{ github.event.repository.archived }}",
+              "disabled": "${{ github.event.repository.disabled }}",
+              "open_issues_count": "${{ github.event.repository.open_issues_count }}",
+              "license": "${{ github.event.repository.license }}",
+              "forks": "${{ github.event.repository.forks }}",
+              "open_issues": "${{ github.event.repository.open_issues }}",
+              "watchers": "${{ github.event.repository.watchers }}",
+              "default_branch": "${{ github.event.repository.default_branch }}"
+            },
+            "pusher": {
+              "name": "${{ github.event.pusher.name }}",
+              "email": "${{ github.event.pusher.email }}"
+            },
+            "sender": {
+              "login": "${{ github.event.sender.login }}",
+              "id": "${{ github.event.sender.id }}",
+              "node_id": "${{ github.event.sender.node_id }}",
+              "avatar_url": "${{ github.event.sender.avatar_url }}",
+              "gravatar_id": "${{ github.event.sender.gravatar_id }}",
+              "url": "${{ github.event.sender.url }}",
+              "html_url": "${{ github.event.sender.html_url }}",
+              "followers_url": "${{ github.event.sender.followers_url }}",
+              "following_url": "${{ github.event.sender.following_url }}",
+              "gists_url": "${{ github.event.sender.gists_url }}",
+              "starred_url": "${{ github.event.sender.starred_url }}",
+              "subscriptions_url": "${{ github.event.sender.subscriptions_url }}",
+              "organizations_url": "${{ github.event.sender.organizations_url }}",
+              "repos_url": "${{ github.event.sender.repos_url }}",
+              "events_url": "${{ github.event.sender.events_url }}",
+              "received_events_url": "${{ github.event.sender.received_events_url }}",
+              "type": "${{ github.event.sender.type }}",
+              "site_admin": "${{ github.event.sender.site_admin }}"
+            },
+            "created": "${{ github.event.created }}",
+            "deleted": "${{ github.event.deleted }}",
+            "forced": "${{ github.event.forced }}",
+            "base_ref": "${{ github.event.base_ref }}",
+            "compare": "${{ github.event.compare }}",
+            "commits": ${{ toJson(github.event.commits) }},
+            "head_commit": ${{ toJson(github.event.head_commit) }}
+          }' > webhook-payload.json
+
+      - name: Send webhook
+        env:
+          WEBHOOK_URL: ${{ env.WEBHOOK_URL }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d @webhook-payload.json \
+          $WEBHOOK_URL || echo "Webhook failed"
+
