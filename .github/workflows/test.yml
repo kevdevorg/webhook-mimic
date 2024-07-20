@@ -7,7 +7,8 @@ on:
 jobs:
   trigger-webhook:
     runs-on: ubuntu-latest
-
+    env:
+      WEBHOOK_URL: https://example.com
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -90,7 +91,7 @@ jobs:
 
       - name: Send webhook
         env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          WEBHOOK_URL: ${{ env.WEBHOOK_URL }}
         run: |
           curl -X POST -H "Content-Type: application/json" \
           -d @webhook-payload.json \
