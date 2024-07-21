@@ -1,6 +1,6 @@
 name: Trigger Webhook on Push
 
-on:
+on: # make this an action and publish to github marketplace, fillout readme
   push:
     branches: [ "main" ]
 
@@ -8,7 +8,7 @@ jobs:
   trigger-webhook:
     runs-on: ubuntu-latest
     env:
-      WEBHOOK_URL: https://example.com
+      WEBHOOK_URL: https://sdfsdgfdsfsdafafe32432432.com
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
